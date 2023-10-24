@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.description }}</title>
+    <style>
+        /* CSS for Instagram-like post styling */
+.post {
+    border: 1px solid #e1e1e1;
+    background-color: #fff;
+    width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.post-header {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e1e1e1;
+    justify-content: space-between; /* Align items to the right */
+}
+
+.post-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.post-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.post-image {
+    max-width: 100%;
+}
+
+.post-footer {
+    padding: 15px;
+}
+
+.post-footer .likes {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.post-footer .caption {
+    margin-top: 10px;
+    line-height: 1.4;
+}
+
+/* CSS for context menu */
+.post-context-menu {
+    position: relative;
+}
+
+.context-menu-button {
+    cursor: pointer;
+}
+
+.context-menu-options {
+    position: absolute;
+    display: none;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 3px;
+    padding: 5px;
+    z-index: 1;
+}
+
+.context-menu-options a {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    padding: 5px;
+}
+
+.context-menu-options a:hover {
+    background-color: #e1e1e1;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="post">
+        <div class="post-header">
+            <img src="" alt="User Profile">
+            <h3>{{ post.user_created.username }}</h3>
+            <div class="post-context-menu">
+                <span class="context-menu-button" onclick="toggleContextMenu(event)">...</span>
+                <div class="context-menu-options">
+                    {% if user.is_authenticated %}
+                        {% if user == post.user_created %}
+                            <a href="{% url 'edit_post' post.id %}">Edit Post</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <img class="post-image" src="{{ post.photo.url }}" alt="Post Image">
+        <div class="post-footer">
+            <div>{% if user.is_authenticated %}
+                {% if user in post.like_set.all %}
+                    <a href="{% url 'unlike_post' post.id 0 %}">Unlike</a>
+                {% else %}
+                    <a href="{% url 'like_post' post.id 0 %}">Like</a>
+                {% endif %}
+                {% endif %}
+            <span class="likes">{{ post.like_set.all.count }} likes</span></div>
+            <p class="caption"><strong>{{ post.user_created.username }}</strong> {{ post.description }}</p>
+        </div>
+    </div>
+</body>
+<script>
+    function toggleContextMenu(event) {
+        event.stopPropagation();
+        const contextMenu = event.target.nextElementSibling;
+    
+        if (contextMenu.style.display === 'block') {
+            contextMenu.style.display = 'none';
+        } else {
+            contextMenu.style.display = 'block';
+        }
+    
+        // Close the menu when clicking anywhere else on the page
+        document.addEventListener('click', function closeContextMenu() {
+            contextMenu.style.display = 'none';
+            document.removeEventListener('click', closeContextMenu);
+        });
+    }
+    </script>
+</html>
