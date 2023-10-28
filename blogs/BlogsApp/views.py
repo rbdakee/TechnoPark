@@ -13,20 +13,63 @@ from .models import *
 def my_profile(request):
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, instance=request.user)
-        logo = LogoForm(request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile has been updated!')
             return redirect('my_profile')
-        # if logo.is_valid():
-        #     logo.save()
-        #     messages.success(request, 'Your profile has been updated!')
-        #     return redirect('my_profile')
     else:
+        logo_user = Logo.objects.filter(user = request.user).first()
         form = UserUpdateForm(instance=request.user)
-        logo = LogoForm(instance=request.user)
-    
-    return render(request, 'my_profile.html', {'form': form, 'logo':logo})
+    return render(request, 'my_profile.html', {'form': form, 'logo':logo_user})
+@login_required
+def change_logo(request):
+    if request.method == 'POST':
+        form = LogoForm(request.POST, request.FILES)
+        if form.is_valid():
+            logo = form.save(commit=False)
+            current_logo = Logo.objects.filter(user=request.user).first()
+            if current_logo:
+                current_logo.delete()
+            logo.user = request.user
+            logo.save()
+            messages.success(request, 'Your Logo has been updated!')
+            return redirect('my_profile')
+    else:
+        form = LogoForm()
+    return render(request, 'change_logo.html', {'form': form})
+
+@login_required
+def del_logo(request):
+    logo = Logo.objects.filter(user=request.user).first()
+    logo.delete()
+    return redirect('my_profile')
+
+def some_profile(request, username):
+    my_profile = True if username == request.user.username else False
+    user = User.objects.filter(username=username).first()
+    follower_count = user.followers.count()
+    following_count = user.following.count()
+    logo = return_logo_of_user(user)
+    posts = users_posts(user)
+    posts_num = len(posts)
+    f = Follow.objects.filter(followee=user).select_related('follower')
+    followers = []
+    for i in f:
+        followers.append(i.follower.username)
+    follow = False if request.user.username in followers else True
+    return render(request, 'some_profile.html', {'user':user, 'logo':logo, 'posts':posts, 'posts_num':posts_num, 'follower':follower_count, 'following':following_count, 'follow':follow, 'my_profile':my_profile})
+
+def follow_user(request, username):
+    user_to_follow = User.objects.get(username=username)
+    if request.user != user_to_follow:
+        Follow.objects.get_or_create(follower=request.user, followee=user_to_follow)
+    return redirect('some_profile', username=username)
+
+def unfollow_user(request, username):
+    user_to_unfollow = User.objects.get(username=username)
+    Follow.objects.filter(follower=request.user, followee=user_to_unfollow).delete()
+    return redirect('some_profile', username=username)
+
 def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -56,8 +99,17 @@ def user_login(request):
 
 def index(request):
     posts = Post.objects.all()
-    return render(request, 'index.html', {'posts': posts})
-
+    logos = Logo.objects.all()
+    return render(request, 'index.html', {'posts': posts, 'logos':logos})
+@login_required
+def following_posts(request):
+    if request.user.is_authenticated:
+        following_users = Follow.objects.filter(follower=request.user).values_list('followee', flat=True)
+        posts = Post.objects.filter(user_created__in=following_users)
+        logos = Logo.objects.all()
+        return render(request, 'index.html', {'posts': posts, 'logos': logos})
+    else:
+        return redirect('index')
 def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)

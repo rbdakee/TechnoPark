@@ -7,6 +7,12 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
 }
+img {
+    border-radius: 50%; /* Makes the image a circle */
+    width: 150px; /* Set your desired fixed width */
+    height: 150px; /* Set your desired fixed height (optional) */
+    object-fit: cover; /* Optional: Preserve aspect ratio and cover the circle */
+}
 
 .container {
     max-width: 800px;
@@ -55,16 +61,46 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+/* Add these styles to your existing CSS */
+.logo-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 20px; /* Add some space below the logo and buttons */
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
 
 </style>
 <div class="container">
     <h2>My Profile</h2>
-  
+    <div class="logo-container">
+        {% if logo.logo.url %}
+        <img src="{{logo.logo.url}}" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover;">
+        <a href="{% url 'logo' %}" class="button">Update Logo</a>
+        <a href="{% url 'delete_logo' %}" class="button">Delete Logo</a>
+        {% else %}
+        <a href="{% url 'logo' %}" class="button">Set Logo</a>
+        {%endif%}
+    </div>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Save Changes</button>
     </form>
-\
 </div>
+
 {% endblock %}

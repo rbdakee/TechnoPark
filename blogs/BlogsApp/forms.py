@@ -11,7 +11,6 @@ class UserRegistrationForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2', 'first_name', 'last_name')
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
-        # Hide the help text for specific fields
         self.fields['username'].help_text = ''
         self.fields['password1'].help_text = ''
         self.fields['password2'].help_text = ''
@@ -21,7 +20,7 @@ class UserRegistrationForm(UserCreationForm):
 class LogoForm(forms.ModelForm):
     class Meta:
         model = Logo
-        fields = '__all__'
+        fields = ['logo']
 class UserLoginForm(AuthenticationForm):
     class Meta:
         model = User

@@ -92,8 +92,14 @@
     {% for post in posts %}
     <div class="post">
         <div class="post-header">
-            <!-- <img src="" alt="User Profile"> -->
-            <h3>{{ post.user_created.username }}</h3>
+            {% for logo in logos %}
+            {% with us_1=logo.user.username %}
+            {% if post.user_created.username == us_1 %}
+                <img src="{{ logo.logo.url }}" alt="User Logo">
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+            <h3><a href="{% url 'some_profile' post.user_created.username %}">{{ post.user_created.username }}</a></h3>
             <div class="post-context-menu">
                 <span class="context-menu-button" onclick="toggleContextMenu(event)">...</span>
                 <div class="context-menu-options">

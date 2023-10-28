@@ -27,12 +27,19 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
-    path('create/', views.create_post, name='create_post'),
+    path('create/', views.create_post, name='create_post'),    
+    path('following_posts/', views.following_posts, name='following'),
     path('edit/<int:post_id>/', views.edit_post, name='edit_post'),
     path('post/<int:post_id>/', views.post_detail, name='post_detail'),
     path('like/<int:post_id>/<int:main>', views.like_post, name='like_post'),
     path('profile/', views.my_profile, name='my_profile'),
+    path('profile/logo/', views.change_logo, name='logo'),
+    path('profile/delete_logo/', views.del_logo, name='delete_logo'),
     path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+    path('<username>/', views.some_profile, name='some_profile'),
+    path('<username>/follow', views.follow_user, name='follow'),
+    path('<username>/unfollow', views.unfollow_user, name='unfollow'),
+
 ]
 
 if settings.DEBUG:

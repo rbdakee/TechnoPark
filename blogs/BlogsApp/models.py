@@ -23,5 +23,17 @@ class Like(models.Model):
         return self.user.username
     
 class Logo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
     logo = models.ImageField(upload_to='logos/%Y/%m/%d')
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
+    followee = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+
+def return_logo_of_user(user):
+    logo = Logo.objects.filter(user=user).first()
+    return logo
+
+def users_posts(user):
+    posts = Post.objects.filter(user_created = user).all()
+    return posts
